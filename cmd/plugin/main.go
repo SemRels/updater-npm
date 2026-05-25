@@ -1,25 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 The plugin-template Authors
+// SPDX-FileCopyrightText: 2026 The updater-npm Authors
 
 package main
 
 import (
-	"context"
-	"log"
 	"os"
 
-	grpcserver "github.com/SemRels/updater-npm/internal/grpc"
 	semrelplugin "github.com/SemRels/updater-npm/internal/plugin"
+	hclog "github.com/hashicorp/go-hclog"
+	hashiplugin "github.com/hashicorp/go-plugin"
 )
 
 func main() {
-	provider := semrelplugin.NewProvider("updater-npm")
-	server := grpcserver.NewProviderServer(provider)
+	logger := hclog.New(&hclog.LoggerOptions{
+		Name:   "updater-npm",
+		Level:  hclog.Info,
+		Output: os.Stderr,
+	})
 
-	if _, err := server.Health(context.Background()); err != nil {
-		log.Printf("plugin health check failed: %v", err)
-		os.Exit(1)
-	}
-
-	log.Printf("%s plugin template is ready", provider.Name())
+	hashiplugin.Serve(&hashiplugin.ServeConfig{
+		HandshakeConfig: semrelplugin.HandshakeConfig(),
+		Plugins:         semrelplugin.PluginMap(semrelplugin.NewUpdater()),
+		GRPCServer:      hashiplugin.DefaultGRPCServer,
+		Logger:          logger,
+	})
 }

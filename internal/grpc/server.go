@@ -1,32 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 The plugin-template Authors
+// SPDX-FileCopyrightText: 2026 The updater-npm Authors
 
 package grpc
 
 import (
 	"context"
 
-	semrelplugin "github.com/SemRels/updater-npm/internal/plugin"
+	semrelv1 "github.com/SemRels/updater-npm/internal/gen/v1"
 )
 
-// HealthResponse is a lightweight stand-in until generated protobuf bindings are wired in.
-type HealthResponse struct {
-	Name string
+// Updater is the minimal contract required by the gRPC adapter.
+type Updater interface {
+	UpdateFiles(context.Context, *semrelv1.ReleaseContext) ([]string, error)
 }
 
-// ProviderServer adapts a provider implementation for the future gRPC transport layer.
-type ProviderServer struct {
-	provider semrelplugin.Provider
+// FilesUpdaterServer adapts the updater implementation to the protobuf service.
+type FilesUpdaterServer struct {
+	semrelv1.UnimplementedFilesUpdaterPluginServer
+	updater Updater
 }
 
-func NewProviderServer(provider semrelplugin.Provider) *ProviderServer {
-	return &ProviderServer{provider: provider}
+func NewFilesUpdaterServer(updater Updater) *FilesUpdaterServer {
+	return &FilesUpdaterServer{updater: updater}
 }
 
-func (s *ProviderServer) Health(ctx context.Context) (*HealthResponse, error) {
-	if err := s.provider.HealthCheck(ctx); err != nil {
-		return nil, err
+func (s *FilesUpdaterServer) UpdateFiles(ctx context.Context, request *semrelv1.UpdateFilesRequest) (*semrelv1.UpdateFilesResponse, error) {
+	response := &semrelv1.UpdateFilesResponse{}
+	if s.updater == nil {
+		response.ErrorMessage = "updater is not configured"
+		return response, nil
 	}
 
-	return &HealthResponse{Name: s.provider.Name()}, nil
+	updatedFiles, err := s.updater.UpdateFiles(ctx, request.GetCtx())
+	response.UpdatedFiles = updatedFiles
+	if err != nil {
+		response.ErrorMessage = err.Error()
+	}
+	return response, nil
 }
