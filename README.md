@@ -1,34 +1,35 @@
 # updater-npm
 
-npm updater plugin for Semantic Release.
+NPM package updater plugin for SemRel.
 
-Updates npm package metadata and versions during Semantic Release.
+Updates npm package versions and related metadata files during a SemRel release.
 
 ## Documentation
 
-- Docs (coming soon): <https://github.com/SemRels/semrel/tree/main/docs/plugins/updater-npm>
-- Template source: <https://github.com/SemRels/plugin-template>
+- SemRel docs (planned): <https://github.com/SemRels/semrel/tree/main/docs/plugins/updater-npm>
+- Plugin template: <https://github.com/SemRels/plugin-template>
+- Registry: <https://registry.semrel.io>
 
 ## Repository Layout
 
-`	ext
+~~~text
 cmd/plugin/              Plugin entry point
 internal/plugin/         Business logic scaffold
 internal/grpc/           gRPC transport scaffold
 proto/v1                 Symlink to the SemRel protobuf contract
 .github/workflows/       CI, release, and security automation
-`
+~~~
 
 ## Development
 
-`ash
+~~~bash
 go build ./cmd/plugin
 go test ./...
-`
+~~~
 
 ## Configuration Example
 
-`yaml
+~~~yaml
 plugins:
   - name: updater-npm
     type: updater
@@ -36,7 +37,7 @@ plugins:
       package_file: package.json
       lock_file: package-lock.json
       registry: https://registry.npmjs.org
-`
+~~~
 
 ## Status
 
