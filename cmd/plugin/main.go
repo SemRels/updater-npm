@@ -4,12 +4,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"strings"
-
-	plugin "github.com/SemRels/updater-npm/internal/plugin"
 )
 
 func main() {
@@ -37,8 +36,29 @@ func run(stdout, stderr io.Writer, getenv func(string) string) int {
 		return 0
 	}
 
-	if err := plugin.NewUpdater().Update(file, version); err != nil {
-		fmt.Fprintln(stderr, "updater-npm:", err)
+	data, err := os.ReadFile(file)
+	if err != nil {
+		fmt.Fprintf(stderr, "updater-npm: read %s: %v\n", file, err)
+		return 1
+	}
+
+	var doc map[string]any
+	if err := json.Unmarshal(data, &doc); err != nil {
+		fmt.Fprintf(stderr, "updater-npm: parse %s: %v\n", file, err)
+		return 1
+	}
+
+	doc["version"] = version
+
+	updated, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		fmt.Fprintf(stderr, "updater-npm: marshal %s: %v\n", file, err)
+		return 1
+	}
+	updated = append(updated, '\n')
+
+	if err := os.WriteFile(file, updated, 0o644); err != nil {
+		fmt.Fprintf(stderr, "updater-npm: write %s: %v\n", file, err)
 		return 1
 	}
 
