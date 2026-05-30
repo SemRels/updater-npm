@@ -26,3 +26,6 @@ build/
 
 # Docker
 .docker/
+
+# Windows plugin binary (build artifact)
+plugin.exe
