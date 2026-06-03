@@ -18,6 +18,7 @@ plugins:
     path: ~/.semrel/plugins/semrel-plugin-updater-npm
     env:
       SEMREL_PLUGIN_FILE: "package.json"
+      SEMREL_PLUGIN_UPDATE_LOCKFILE: "true"
 ```
 
 ## `SEMREL_PLUGIN_*` variables
@@ -25,6 +26,7 @@ plugins:
 | Name | Required | Description | Default |
 | --- | --- | --- | --- |
 | `SEMREL_PLUGIN_FILE` | Optional | Path to the package manifest to update. | package.json |
+| `SEMREL_PLUGIN_UPDATE_LOCKFILE` | Optional | When `true`, runs `npm install --package-lock-only` after updating `package.json` to keep `package-lock.json` in sync. Missing `npm` or command failures are logged as warnings and do not fail the plugin. | false |
 
 ## `SEMREL_*` release context used
 
@@ -36,7 +38,7 @@ plugins:
 
 ## Example behavior
 
-The plugin updates the `version` field in `package.json` to the next release version.
+The plugin updates the `version` field in `package.json` to the next release version. When `SEMREL_PLUGIN_UPDATE_LOCKFILE=true`, it also runs `npm install --package-lock-only` in the manifest directory so `package-lock.json` stays aligned with the new version.
 
 ## License
 

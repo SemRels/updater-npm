@@ -4,18 +4,36 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
+
+	updaterplugin "github.com/SemRels/updater-npm/internal/plugin"
 )
 
-func main() {
-	os.Exit(run(os.Stdout, os.Stderr, os.Getenv))
+type versionUpdater interface {
+	Update(path, version string) error
 }
 
-func run(stdout, stderr io.Writer, getenv func(string) string) int {
+type commandRunner func(context.Context, string, string, ...string) error
+
+func main() {
+	os.Exit(run(context.Background(), os.Stdout, os.Stderr, os.Getenv, updaterplugin.NewUpdater(), exec.LookPath, runCommand))
+}
+
+func run(
+	ctx context.Context,
+	stdout, stderr io.Writer,
+	getenv func(string) string,
+	updater versionUpdater,
+	lookPath func(string) (string, error),
+	runCommand commandRunner,
+) int {
 	version := getenv("SEMREL_VERSION")
 	if version == "" {
 		version = getenv("SEMREL_NEXT_VERSION")
@@ -36,32 +54,50 @@ func run(stdout, stderr io.Writer, getenv func(string) string) int {
 		return 0
 	}
 
-	data, err := os.ReadFile(file)
-	if err != nil {
-		fmt.Fprintf(stderr, "updater-npm: read %s: %v\n", file, err)
+	if err := updater.Update(file, version); err != nil {
+		fmt.Fprintf(stderr, "updater-npm: %v\n", err)
 		return 1
 	}
 
-	var doc map[string]any
-	if err := json.Unmarshal(data, &doc); err != nil {
-		fmt.Fprintf(stderr, "updater-npm: parse %s: %v\n", file, err)
-		return 1
-	}
-
-	doc["version"] = version
-
-	updated, err := json.MarshalIndent(doc, "", "  ")
-	if err != nil {
-		fmt.Fprintf(stderr, "updater-npm: marshal %s: %v\n", file, err)
-		return 1
-	}
-	updated = append(updated, '\n')
-
-	if err := os.WriteFile(file, updated, 0o644); err != nil {
-		fmt.Fprintf(stderr, "updater-npm: write %s: %v\n", file, err)
-		return 1
+	if getenv("SEMREL_PLUGIN_UPDATE_LOCKFILE") == "true" {
+		updateLockfile(ctx, stderr, file, lookPath, runCommand)
 	}
 
 	fmt.Fprintf(stdout, "updater-npm: updated %s to version %s\n", file, version)
 	return 0
+}
+
+func updateLockfile(
+	ctx context.Context,
+	stderr io.Writer,
+	file string,
+	lookPath func(string) (string, error),
+	runCommand commandRunner,
+) {
+	if _, err := lookPath("npm"); err != nil {
+		if errors.Is(err, exec.ErrNotFound) {
+			fmt.Fprintf(stderr, "updater-npm: npm not found on PATH — skipping lockfile update\n")
+			return
+		}
+		fmt.Fprintf(stderr, "updater-npm: unable to find npm on PATH: %v — skipping lockfile update\n", err)
+		return
+	}
+
+	if err := runCommand(ctx, filepath.Dir(file), "npm", "install", "--package-lock-only"); err != nil {
+		fmt.Fprintf(stderr, "updater-npm: npm install --package-lock-only failed: %v — skipping lockfile update\n", err)
+	}
+}
+
+func runCommand(ctx context.Context, dir, name string, args ...string) error {
+	cmd := exec.CommandContext(ctx, name, args...)
+	cmd.Dir = dir
+
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		return nil
+	}
+	if len(output) == 0 {
+		return err
+	}
+	return fmt.Errorf("%w: %s", err, strings.TrimSpace(string(output)))
 }
