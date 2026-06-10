@@ -16,6 +16,8 @@ import (
 	updaterplugin "github.com/SemRels/updater-npm/internal/plugin"
 )
 
+const pluginSchemaVersion = 1
+
 type versionUpdater interface {
 	Update(path, version string) error
 }
@@ -34,6 +36,7 @@ func run(
 	lookPath func(string) (string, error),
 	runCommand commandRunner,
 ) int {
+	fmt.Fprintf(stderr, "plugin_schema_version=%d\n", pluginSchemaVersion)
 	version := getenv("SEMREL_VERSION")
 	if version == "" {
 		version = getenv("SEMREL_NEXT_VERSION")
