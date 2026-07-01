@@ -1,6 +1,6 @@
 # updater-npm
 
-[![Latest Release](https://img.shields.io/github/v/release/SemRels/updater-npm?label=version\&color=blue)](https://github.com/SemRels/updater-npm/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/SemRels/updater-npm?label=version&color=blue)](https://github.com/SemRels/updater-npm/releases/latest)
 
 Updates the package version in `package.json`.
 
