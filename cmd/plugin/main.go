@@ -42,7 +42,7 @@ func run(
 		version = getenv("SEMREL_NEXT_VERSION")
 	}
 	if version == "" {
-		fmt.Fprintln(stderr, "updater-npm: SEMREL_VERSION is required")
+		_, _ = fmt.Fprintln(stderr, "updater-npm: SEMREL_VERSION is required")
 		return 1
 	}
 	version = strings.TrimPrefix(version, "v")
@@ -53,12 +53,12 @@ func run(
 	}
 
 	if getenv("SEMREL_DRY_RUN") == "true" {
-		fmt.Fprintf(stdout, "updater-npm: [dry-run] would update %s to version %s\n", file, version)
+		_, _ = fmt.Fprintf(stdout, "updater-npm: [dry-run] would update %s to version %s\n", file, version)
 		return 0
 	}
 
 	if err := updater.Update(file, version); err != nil {
-		fmt.Fprintf(stderr, "updater-npm: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "updater-npm: %v\n", err)
 		return 1
 	}
 
@@ -66,7 +66,7 @@ func run(
 		updateLockfile(ctx, stderr, file, lookPath, runCommand)
 	}
 
-	fmt.Fprintf(stdout, "updater-npm: updated %s to version %s\n", file, version)
+	_, _ = fmt.Fprintf(stdout, "updater-npm: updated %s to version %s\n", file, version)
 	return 0
 }
 
@@ -79,15 +79,15 @@ func updateLockfile(
 ) {
 	if _, err := lookPath("npm"); err != nil {
 		if errors.Is(err, exec.ErrNotFound) {
-			fmt.Fprintf(stderr, "updater-npm: npm not found on PATH — skipping lockfile update\n")
+			_, _ = fmt.Fprintf(stderr, "updater-npm: npm not found on PATH — skipping lockfile update\n")
 			return
 		}
-		fmt.Fprintf(stderr, "updater-npm: unable to find npm on PATH: %v — skipping lockfile update\n", err)
+		_, _ = fmt.Fprintf(stderr, "updater-npm: unable to find npm on PATH: %v — skipping lockfile update\n", err)
 		return
 	}
 
 	if err := runCommand(ctx, filepath.Dir(file), "npm", "install", "--package-lock-only"); err != nil {
-		fmt.Fprintf(stderr, "updater-npm: npm install --package-lock-only failed: %v — skipping lockfile update\n", err)
+		_, _ = fmt.Fprintf(stderr, "updater-npm: npm install --package-lock-only failed: %v — skipping lockfile update\n", err)
 	}
 }
 
