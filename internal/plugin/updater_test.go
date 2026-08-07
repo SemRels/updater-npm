@@ -17,7 +17,11 @@ func TestUpdaterUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			t.Errorf("remove temporary directory: %v", err)
+		}
+	})
 
 	file := filepath.Join(dir, "package.json")
 	original := "{\n    \"name\": \"demo\",\n    \"version\": \"1.2.3\",\n    \"private\": true\n}\n"
@@ -54,7 +58,11 @@ func TestUpdaterMissingVersionField(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			t.Errorf("remove temporary directory: %v", err)
+		}
+	})
 
 	file := filepath.Join(dir, "package.json")
 	if err := os.WriteFile(file, []byte("{\n  \"name\": \"demo\"\n}\n"), 0o644); err != nil {
@@ -74,7 +82,11 @@ func TestIndentation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			t.Errorf("remove temporary directory: %v", err)
+		}
+	})
 
 	file := filepath.Join(dir, "package.json")
 	if err := os.WriteFile(file, []byte("{\n    \"name\": \"demo\"\n}\n"), 0o644); err != nil {
@@ -97,7 +109,11 @@ func TestUpdaterInvalidJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			t.Errorf("remove temporary directory: %v", err)
+		}
+	})
 
 	file := filepath.Join(dir, "package.json")
 	if err := os.WriteFile(file, []byte("{"), 0o644); err != nil {
@@ -126,7 +142,11 @@ func TestIndentationNoIndent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(dir)
+	t.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			t.Errorf("remove temporary directory: %v", err)
+		}
+	})
 
 	file := filepath.Join(dir, "package.json")
 	if err := os.WriteFile(file, []byte("{}\n"), 0o644); err != nil {

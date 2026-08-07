@@ -4,7 +4,7 @@
 # ── build stage ────────────────────────────────────────────────────────────────
 # Use BUILDPLATFORM so cross-compilation happens on the native runner (fast).
 # TARGETOS/TARGETARCH are injected by buildx for each platform slice.
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS build
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -12,7 +12,7 @@ ARG VERSION=dev
 
 WORKDIR /src
 RUN apk add --no-cache ca-certificates git
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
