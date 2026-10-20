@@ -3,6 +3,7 @@
   "$id": "https://registry.semrel.io/schemas/plugins/npm/v1.json",
   "title": "updater-npm plugin configuration",
   "description": "Schema v1 for the updater-npm semrel plugin. Configure via SEMREL_* environment variables.",
+  "x-semrel-dry-run": true,
   "type": "object",
   "properties": {
     "SEMREL_PLUGIN_FILE": {
