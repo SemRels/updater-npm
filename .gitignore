@@ -29,3 +29,7 @@ build/
 
 # Windows plugin binary (build artifact)
 plugin.exe
+
+# Semrel
+.semrel/
+.semrel-analytics.jsonl
