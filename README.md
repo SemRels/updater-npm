@@ -1,6 +1,10 @@
 # updater-npm
 
 [![Latest Release](https://img.shields.io/github/v/release/SemRels/updater-npm?label=version&color=blue)](https://github.com/SemRels/updater-npm/releases/latest)
+[![CI](https://github.com/SemRels/updater-npm/actions/workflows/ci.yml/badge.svg)](https://github.com/SemRels/updater-npm/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/SemRels/updater-npm)](LICENSE)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/SemRels/updater-npm/badge)](https://scorecard.dev/viewer/?uri=github.com/SemRels/updater-npm)
+[![REUSE status](https://api.reuse.software/badge/github.com/SemRels/updater-npm)](https://api.reuse.software/info/github.com/SemRels/updater-npm)
 
 Updates the package version in `package.json`.
 
