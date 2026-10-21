@@ -39,19 +39,21 @@ cosign verify ghcr.io/semrels/updater-npm:latest \
 
 ```yaml
 plugins:
-  - name: updater-npm
-    path: ~/.semrel/plugins/semrel-plugin-updater-npm
-    env:
-      SEMREL_PLUGIN_FILE: "package.json"
-      SEMREL_PLUGIN_UPDATE_LOCKFILE: "true"
+  - uses: "@semrel/updater-npm"
+    phase: pre-tag
+    args:
+      file: "package.json"
+      update_lockfile: "true"
 ```
 
-## `SEMREL_PLUGIN_*` variables
+## Options
 
-| Name | Required | Description | Default |
-| --- | --- | --- | --- |
-| `SEMREL_PLUGIN_FILE` | Optional | Path to the package manifest to update. | package.json |
-| `SEMREL_PLUGIN_UPDATE_LOCKFILE` | Optional | When `true`, runs `npm install --package-lock-only` after updating `package.json` to keep `package-lock.json` in sync. Missing `npm` or command failures are logged as warnings and do not fail the plugin. | false |
+Every option can be set as an entry under `args` in `.semrel.yaml`. semrel passes each entry to the plugin as the environment variable shown in the table, so you can also set that variable directly (for example in your CI environment) instead of using `args`.
+
+| Argument | Environment variable | Required | Description | Default |
+| --- | --- | --- | --- | --- |
+| `file` | `SEMREL_PLUGIN_FILE` | Optional | Path to the package manifest to update. | package.json |
+| `update_lockfile` | `SEMREL_PLUGIN_UPDATE_LOCKFILE` | Optional | When `true`, runs `npm install --package-lock-only` after updating `package.json` to keep `package-lock.json` in sync. Missing `npm` or command failures are logged as warnings and do not fail the plugin. | false |
 
 ## `SEMREL_*` release context used
 
