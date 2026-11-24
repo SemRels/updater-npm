@@ -1,6 +1,10 @@
 # updater-npm
 
 [![Latest Release](https://img.shields.io/github/v/release/SemRels/updater-npm?label=version&color=blue)](https://github.com/SemRels/updater-npm/releases/latest)
+[![CI](https://github.com/SemRels/updater-npm/actions/workflows/ci.yml/badge.svg)](https://github.com/SemRels/updater-npm/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/SemRels/updater-npm)](LICENSE)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/SemRels/updater-npm/badge)](https://scorecard.dev/viewer/?uri=github.com/SemRels/updater-npm)
+[![REUSE status](https://api.reuse.software/badge/github.com/SemRels/updater-npm)](https://api.reuse.software/info/github.com/SemRels/updater-npm)
 
 Updates the package version in `package.json`.
 
@@ -26,7 +30,7 @@ Images are signed with [cosign](https://github.com/sigstore/cosign) and include 
 
 ```bash
 cosign verify ghcr.io/semrels/updater-npm:latest \
-  --certificate-identity-regexp 'https://github.com/SemRels/updater-npm/.github/workflows/release.yml.*' \
+  --certificate-identity-regexp 'https://github.com/SemRels/updater-npm/.github/workflows/container.yml.*' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
@@ -35,19 +39,21 @@ cosign verify ghcr.io/semrels/updater-npm:latest \
 
 ```yaml
 plugins:
-  - name: updater-npm
-    path: ~/.semrel/plugins/semrel-plugin-updater-npm
-    env:
-      SEMREL_PLUGIN_FILE: "package.json"
-      SEMREL_PLUGIN_UPDATE_LOCKFILE: "true"
+  - uses: "@semrel/updater-npm"
+    phase: pre-tag
+    args:
+      file: "package.json"
+      update_lockfile: "true"
 ```
 
-## `SEMREL_PLUGIN_*` variables
+## Options
 
-| Name | Required | Description | Default |
-| --- | --- | --- | --- |
-| `SEMREL_PLUGIN_FILE` | Optional | Path to the package manifest to update. | package.json |
-| `SEMREL_PLUGIN_UPDATE_LOCKFILE` | Optional | When `true`, runs `npm install --package-lock-only` after updating `package.json` to keep `package-lock.json` in sync. Missing `npm` or command failures are logged as warnings and do not fail the plugin. | false |
+Every option can be set as an entry under `args` in `.semrel.yaml`. semrel passes each entry to the plugin as the environment variable shown in the table, so you can also set that variable directly (for example in your CI environment) instead of using `args`.
+
+| Argument | Environment variable | Required | Description | Default |
+| --- | --- | --- | --- | --- |
+| `file` | `SEMREL_PLUGIN_FILE` | Optional | Path to the package manifest to update. | package.json |
+| `update_lockfile` | `SEMREL_PLUGIN_UPDATE_LOCKFILE` | Optional | When `true`, runs `npm install --package-lock-only` after updating `package.json` to keep `package-lock.json` in sync. Missing `npm` or command failures are logged as warnings and do not fail the plugin. | false |
 
 ## `SEMREL_*` release context used
 

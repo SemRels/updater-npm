@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 The plugin-template Authors
+# SPDX-FileCopyrightText: 2026 The semrel Authors
 
 # Operating system files
 .DS_Store
@@ -29,3 +29,7 @@ build/
 
 # Windows plugin binary (build artifact)
 plugin.exe
+
+# Semrel
+.semrel/
+.semrel-analytics.jsonl
