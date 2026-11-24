@@ -146,6 +146,12 @@ func TestRunDoesNotUpdateLockfileByDefault(t *testing.T) {
 }
 
 func TestRunDryRun(t *testing.T) {
+	for _, value := range []string{"true", "1"} {
+		t.Run(value, func(t *testing.T) { runDryRunTest(t, value) })
+	}
+}
+
+func runDryRunTest(t *testing.T, value string) {
 	t.Parallel()
 
 	file := filepath.Join(t.TempDir(), "package.json")
@@ -158,7 +164,7 @@ func TestRunDryRun(t *testing.T) {
 		"SEMREL_VERSION":                "v1.1.0",
 		"SEMREL_PLUGIN_FILE":            file,
 		"SEMREL_PLUGIN_UPDATE_LOCKFILE": "true",
-		"SEMREL_DRY_RUN":                "true",
+		"SEMREL_DRY_RUN":                value,
 	}
 	var stdout, stderr bytes.Buffer
 	if code := run(context.Background(), &stdout, &stderr, func(key string) string { return env[key] }, updaterplugin.NewUpdater(), func(string) (string, error) {

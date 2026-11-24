@@ -54,7 +54,7 @@ func run(
 		file = "package.json"
 	}
 
-	if strings.EqualFold(getenv("SEMREL_DRY_RUN"), "true") || strings.EqualFold(getenv("SEMREL_PLUGIN_DRY_RUN"), "true") {
+	if strings.EqualFold(getenv("SEMREL_DRY_RUN"), "true") || getenv("SEMREL_DRY_RUN") == "1" || strings.EqualFold(getenv("SEMREL_PLUGIN_DRY_RUN"), "true") {
 		diff, err := updater.Diff(file, version)
 		if err != nil {
 			_, _ = fmt.Fprintf(stderr, "updater-npm: %v\n", err)
